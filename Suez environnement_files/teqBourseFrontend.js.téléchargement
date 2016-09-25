@@ -1,0 +1,37 @@
+if (typeof TEQ == 'undefined' || !TEQ)
+    var TEQ = {};
+
+if (typeof TEQ.BourseFrontend == 'undefined' || !TEQ.BourseFrontend)
+    TEQ.BourseFrontend = {};
+
+jQuery(document).ready(function() {
+    new TEQ.BourseFrontend();
+});
+
+TEQ.BourseFrontend = function() {
+    this.init();
+}
+
+TEQ.BourseFrontend.prototype =
+{
+    init: function() {
+        this.fetchFeed();
+    },
+    fetchFeed:function() {
+        var $zonebourse = jQuery('#zone-bourse');
+        if($zonebourse.length == 0) {
+            return;
+        }
+        jQuery.ajax({
+            type: 'post',
+            url: ajaxurl ,
+            data: 'action=teq_bourse_fetch&use_cache=1&ttl=180',
+            success: function(response) {
+                $zonebourse.html(response);
+            },
+            error: function(response) {
+                $zonebourse.html(response);
+            }
+        })
+    }
+}

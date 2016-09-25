@@ -1,0 +1,46 @@
+/* SLIDER ENGAGEMENT & ACTION */
+jQuery(document).ready(function($){
+    if(jQuery('#slider-engagements-container').length > 0)
+    {
+        var sliderEngagement = jQuery('#slider-engagements-container').bxSlider({
+            mode: 'fade',
+            infiniteLoop: false,
+            speed: 1500, prevText: '',
+            prevSelector: '.prevSelector',
+            nextText: '',
+            nextSelector: '.nextSelector',
+            onAfterSlide: function (currentSlideNumber, totalSlideQty) {
+                if (currentSlideNumber == 0) {
+                    jQuery('.prevSelector').addClass('btn-inactif');
+                }
+                else {
+                    jQuery('.prevSelector').removeClass('btn-inactif');
+                }
+                if (currentSlideNumber == totalSlideQty - 1) {
+                    jQuery('.nextSelector').addClass('btn-inactif');
+                }
+                else {
+                    jQuery('.nextSelector').removeClass('btn-inactif');
+                }
+            },
+            onBeforeSlide: function (currentSlideNumber, totalSlideQty) {
+                if (currentSlideNumber == 0) {
+                    jQuery('.prevSelector').addClass('btn-inactif');
+                }
+                else {
+                    jQuery('.prevSelector').removeClass('btn-inactif');
+                }
+                if (currentSlideNumber == totalSlideQty - 1) {
+                    jQuery('.nextSelector').addClass('btn-inactif');
+                }
+                else {
+                    jQuery('.nextSelector').removeClass('btn-inactif');
+                }
+            }
+        });
+
+        jQuery('.item-engagement').on('click', 'a', function () {
+            sliderEngagement.goToSlide(jQuery(this).data('slide'));
+        });
+    }
+});

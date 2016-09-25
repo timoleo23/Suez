@@ -1,0 +1,51 @@
+/* 
+    Document   : print
+    Created on : 30 août 2011, 15:05:48
+    Author     : bdemogue
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/* 
+   TODO customize this sample style
+   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
+*/
+
+root { 
+    display: block;
+}
+body { background-color: #FFF; margin:0; padding:0; line-height: 1.4em; word-spacing:1px; letter-spacing:0.2px; font: 13px Arial, Helvetica,"Lucida Grande", serif; color: #000;}
+
+/* Links */
+a:link, a:visited {background: transparent; color:#333; text-decoration:none;}
+a:link[href^="http://"]:after, a[href^="http://"]:visited:after {content: " (" attr(href) ") "; font-size: 11px;}
+.teq-directoire a:link[href^="http://"]:after,
+.teq-directoire a[href^="http://"]:visited:after {content: ""; font-size: 11px;}
+a[href^="http://"] {color:#000;}
+
+#wrapper-global{
+    background-color: #FFF;
+}
+
+/*Remove Element*/
+#zone-bourse, 
+#zone-recherche,
+#nav,
+#sub-menu,
+#bloc-blanc, 
+#breadcrumb,
+.col-left,
+.social-bar,
+.col-right,
+.pagination,
+#footer{
+    visibility: hidden; 
+    display: none;
+}
+.col-center{
+    width:100%;
+}
+#header, 
+#wrapper{
+    margin: 0;
+}

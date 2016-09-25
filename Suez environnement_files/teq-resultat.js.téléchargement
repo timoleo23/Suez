@@ -1,0 +1,24 @@
+jQuery(function($) {
+    if(jQuery('.module-resultats').length > 0)
+    {
+        jQuery.address.change(function (event) {
+            if ((typeof(event.value) != 'undefined') && (event.value != '') && (event.value != null)) {
+                var $selector = jQuery('.en-tete li a[href="#!' + event.value + '"]');
+
+                if ($selector.length > 0) {
+                    var year = $selector.data('year');
+                    var $item = jQuery('#resultats' + year);
+                    if ($item.hasClass('selected') === true) {
+                        return;
+                    }
+                    else {
+                        jQuery('.module-resultats .en-tete li').removeClass('active');
+                        $selector.parent().addClass('active');
+                        jQuery('.module-resultats table').removeClass('selected');
+                        $item.addClass('selected');
+                    }
+                }
+            }
+        });
+    }
+});

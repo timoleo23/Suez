@@ -1,0 +1,330 @@
+jQuery.noConflict();
+var size = 4;
+function resizeFont(target, inc) {
+    var childs = jQuery(target).children('div');
+    if (inc > 0 && size < 11) {
+        if (childs.length == 0) {
+            jQuery(target).css('font-size', (parseInt(jQuery(target).css('font-size')) + 1) + 'px');
+        } else {
+            jQuery.each(childs, function (indexDiv, valueDiv) {
+                if (jQuery(valueDiv).attr('id') != 'titlePage' && !jQuery(valueDiv).hasClass('share-bar') && !jQuery(valueDiv).hasClass('top-page') && !jQuery(valueDiv).hasClass('col-right') && jQuery(valueDiv).attr('id') != 'slider-page') {
+                    jQuery(valueDiv).css('font-size', (parseInt(jQuery(valueDiv).css('font-size')) + 1) + 'px');
+                    jQuery.each(jQuery('a, div, p, td, span, li, h2, h3, h4', jQuery(valueDiv)), function (index, value) {
+                        jQuery(value).css('font-size', (parseInt(jQuery(value).css('font-size')) + 1) + 'px');
+                    });
+                }
+            });
+            size++;
+        }
+    } else if (inc < 0 && size > 0) {
+        if (childs.length == 0) {
+            jQuery(target).css('font-size', (parseInt(jQuery(target).css('font-size')) - 1) + 'px');
+        } else {
+            jQuery.each(childs, function (indexDiv, valueDiv) {
+                if (jQuery(valueDiv).attr('id') != 'titlePage' && !jQuery(valueDiv).hasClass('share-bar') && !jQuery(valueDiv).hasClass('top-page') && !jQuery(valueDiv).hasClass('col-right') && jQuery(valueDiv).attr('id') != 'slider-page') {
+                    jQuery(valueDiv).css('font-size', (parseInt(jQuery(valueDiv).css('font-size')) - 1) + 'px');
+                    jQuery.each(jQuery('a, div, p, td, span, li, h2, h3, h4', jQuery(valueDiv)), function (index, value) {
+                        jQuery(value).css('font-size', (parseInt(jQuery(value).css('font-size')) - 1) + 'px');
+                    });
+                }
+            });
+            size--;
+        }
+    }
+}
+
+jQuery(document).ready(function ($) {
+
+    // Hey ie7, is it you?    
+    isIE7 = (navigator.appVersion.indexOf('MSIE 7.') == -1) ? false : true;
+
+    if (isIE7 == true) {
+        $('.list-default li').prepend("<span class='before'>&nbsp;</span>");
+    }
+
+    /* MENU DE NAVIGATION PRINCIPAL */
+    $('#nav div.nav-item div.sous-menu').hide();
+    $('#nav div.nav-item').hover(function () {
+        $(this).toggleClass('hover');
+
+    }, function () {
+        $(this).toggleClass('hover');
+
+    });
+
+    $('#nav div.nav-item').click(function () {
+        var id = $(this).parent().data('id');
+        var item = $("#nav-gamme" + id).hasClass('selected');
+        if (item === true) {
+            $(this).toggleClass('actived');
+        }
+        else {
+            $('#nav div.nav-item').removeClass('actived');
+            $(this).addClass('actived');
+        }
+    });
+
+    $('#nav .nav-item-contenair').click(function () {
+        var id = $(this).data('id');
+        var item = $("#nav-gamme" + id).hasClass('selected');
+        if (item === true) {
+            hide(id);
+        }
+        else {
+            if ($('.menu').hasClass('fade')) {
+                $("#sub-menu-" + id).fadeIn();
+            }
+            else {
+                $("#sub-menu-" + id).slideToggle();
+            }
+
+            $(".menu").removeClass('selected').addClass('fade');
+            $("#nav-gamme" + id).addClass('selected');
+            $(".sub-menu").removeClass('visible').addClass('hidden').hide();
+            $("#sub-menu-" + id).removeClass('hidden').addClass('visible').show();
+            $('#sub-menu-' + id).teqrowcolizr();
+        }
+    });
+
+    $('.close').click(function () {
+        hide(jQuery(this).data('id'));
+
+    });
+
+    function hide(value) {
+        $(".menu").removeClass('fade');
+        $("#nav-gamme" + value).removeClass('selected');
+        $("#sub-menu-" + value).slideToggle();
+        $(".sub-menu").removeClass('visible').addClass('hidden');
+    }
+
+
+    /* SLIDER HOMEPAGE BANDEAU */
+    if ($('#slider-home li').length > 1) {
+        $('#slider-home').bxSlider({
+            mode: 'fade',
+            prevText: '',
+            nextText: '',
+            captions: true,
+            speed: 1500,
+            onAfterSlide: loadHomepageSliderSWF
+        });
+    }
+    else {
+        loadHomepageSliderSWF();
+    }
+
+    /**
+     * Au premier chargement de bxSlider, charger les SWF (leur URL est stockée dans le data-src de chaque <embed>
+     * Ceci évite que IE charge le SWF deux fois et joue des sons superposés
+     */
+    function loadHomepageSliderSWF() {
+        if (typeof $('#slider-home').data('loaded') != 'undefined' && $('#slider-home').data('loaded') == '1') {
+            return;
+        }
+        $('#slider-home').data('loaded', '1');
+        $('#slider-home li embed').each(function () {
+            var $swf = $(this);
+            var $loaded_swf = $swf.clone();
+            $loaded_swf.attr('src', $swf.data('src'));
+            $swf.replaceWith($loaded_swf);
+        });
+    };
+
+    /* SLIDER HOMEPAGE ACTUALITE */
+    $('#slider-hp-actualite').bxSlider({
+        displaySlideQty: 3,
+        moveSlideQty: 3,
+        infiniteLoop: false,
+        prevText: '',
+        prevSelector: '#prevSelector',
+        nextText: '',
+        nextSelector: '#nextSelector',
+        onAfterSlide: function (currentSlideNumber, totalSlideQty) {
+            if (currentSlideNumber == 0) {
+                $('#prevSelector').addClass('btn-inactif');
+            }
+            else {
+                $('#prevSelector').removeClass('btn-inactif');
+            }
+
+            if (currentSlideNumber == totalSlideQty - 3 || totalSlideQty == 3) {
+                $('#nextSelector').addClass('btn-inactif');
+            }
+            else {
+                $('#nextSelector').removeClass('btn-inactif');
+            }
+        }
+    });
+
+    $('#list-language-special span').click(function () {
+        $('#list-pays').toggle();
+    });
+
+    /* UNIFORM */
+    $("select, input:checkbox, input:radio, input:file").uniform();
+
+    /* FAQ */
+    $("#accordion").accordion({collapsible: true, autoHeight: false, animated: 'blind'});
+
+    /* WiDGETS SousHP UNIFORMISER LES HAUTEURS */
+
+    $(window).load(function () {
+        $('.shp-focus-row-3col').teqrowcolizr({classMinHeight: 0, classChildSelector: '.widget .title'});
+        $('.shp-focus-row-3col .widget .title h2').css('position', 'absolute');
+    });
+    $('.shp-focus-row-3col').teqrowcolizr({classMinHeight: 0, classChildSelector: '.widget .post-content'});
+
+    $('.button-share').click(function (evt) {
+        evt.preventDefault();
+        $('.share-bar').toggle();
+    });
+
+    /* TOP PAGE */
+    var $top_page = $('.top-page:eq(0)');
+    if ($top_page.length == 1) {
+        $top_page.hide();
+        $(window).resize(function () {
+            var top = $top_page.position().top;
+            if (top < $(this).height()) {
+                $top_page.hide();
+            } else {
+                $top_page.show();
+            }
+        }).resize();
+        $('a', $top_page).click(function () {
+            $('body, html').animate({scrollTop: 0}, 800);
+            return false;
+        });
+
+        $('.button-font-more').click(function () {
+            if (jQuery('#slider-page').length > 0) {
+                resizeFont('#top-page .sub-title', 1);
+                resizeFont('#top-page .col-center', 1);
+                resizeFont('#top-page.col-center', 1);
+            } else {
+                resizeFont('#top-page.col-center', 1);
+            }
+        });
+
+        $('.button-font-less').click(function () {
+            if (jQuery('#slider-page').length > 0) {
+                resizeFont('#top-page .sub-title', -1);
+                resizeFont('#top-page .col-center', -1);
+                resizeFont('#top-page.col-center', -1);
+            } else {
+                resizeFont('#top-page.col-center', -1);
+            }
+        });
+    }
+    /* NAVIGATION PRINCIPALE */
+    $('.teq-directoire .directory-row').teqrowcolizr();
+    $('.contact-blocs-grey').teqrowcolizr();
+
+    /* MODULE RECHERCHE */
+    $('#teq-search-order-filter').change(function (evt) {
+        evt.preventDefault();
+        window.location = $(this).val();
+    });
+
+    /* COLORBOX */
+    $(document).ready(function () {
+        $('a[rel=lightbox]').each(function () {
+            // Gets colorbox data
+            var url = $(this).attr('href');
+            var width = $(this).data('width');
+            if (typeof width == 'undefined')
+                width = '400px';
+            else
+                width = (parseInt(width)) + 'px';
+            var height = $(this).data('height');
+            if (typeof height == 'undefined')
+                height = '200px';
+            else
+                height = (parseInt(height)) + 'px';
+            // Builds SWF wrapper if needed
+            if (url.indexOf('.swf') >= 0) {
+                var html = '';
+                html += '<div style="width:' + width + '; height:' + height + '; overflow:hidden;">';
+                html += '<object>';
+                html += '<param name="allowfullscreen" value="true" />';
+                html += '<param name="wmode" value="opaque" />';
+                html += '<param name="allowscriptaccess" value="always" />';
+                html += '<param name="movie" value="' + url + '" />';
+                html += '<embed src="' + url + '" type="application/x-shockwave-flash" allowfullscreen="true" wmode="opaque" allowscriptaccess="always" width="' + width + '" height="' + height + '"></embed>';
+                html += '</object>';
+                html += '</div>';
+                $(this).colorbox(
+                    {
+                        inner: true,
+                        html: html,
+                        innerWidth: width,
+                        innerHeight: height,
+                        rel: 'nofollow'
+                    });
+            }
+            else if (url.indexOf('.flv') >= 0) {
+                var unique_id = Math.round(Math.random() * 1000);
+                var autoplay = $(this).data('autoplay') != undefined && $(this).data('autoplay') == '1' ? '1' : '0';
+                var photo = $(this).data('photo') != undefined ? $(this).data('photo') : '';
+                var html = '';
+                html += '<div style="width:' + width + '; height:' + height + '; overflow:hidden;">';
+                html += '<object id="' + unique_id + '" width="' + width + '" height="' + height + '" data="' + playerurl + 'player_flv.swf" >';
+                html += '<param name="allowfullscreen" value="true" />';
+                html += '<param name="wmode" value="opaque" />';
+                html += '<param name="allowscriptaccess" value="always" />';
+                html += '<param name="flashvars" value="_VIDEO_=' + url + '&_AUTOPLAY_=' + autoplay + '&_PHOTO_=' + photo + '&_UNIQUE_ID=' + unique_id + '&_COLOR_=0xffffff" />';
+                html += '</object>';
+                html += '</div>';
+                $(this).colorbox(
+                    {
+                        inner: true,
+                        html: html,
+                        innerWidth: width,
+                        innerHeight: height,
+                        rel: 'nofollow'
+                    });
+
+            }
+            // Otherwise opens the link in an iframe
+            else {
+                $(this).colorbox(
+                    {
+                        iframe: true,
+                        fastIframe: false,
+                        innerWidth: width,
+                        innerHeight: height,
+                        rel: 'nofollow'
+                    });
+            }
+        });
+    });
+
+    /*Tableau alternance rose*/
+    $('.table-alternance-rose').find('tr:odd').addClass('tr-rose');
+});
+
+function onYouTubeIframeAPIReady() {
+    if (typeof(window['tabYoutube']) != 'undefined') {
+        for (var i in window['tabYoutube']) {
+            var playerOptions = window['tabYoutube'][i];
+
+            player = new YT.Player(playerOptions['idIframe'], {
+                height: playerOptions['height'],
+                width: playerOptions['width'],
+                videoId: playerOptions['videoId'],
+                playerVars: {
+                    wmode: "transparent"
+                },
+                events: {
+                    'onReady': onPlayerReady
+                }
+            });
+        }
+    }
+}
+
+function onPlayerReady(event) {
+    tab_players_youtube.push(event.target);
+}
+

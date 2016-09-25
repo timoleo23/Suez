@@ -1,0 +1,105 @@
+var tab_players_youtube = new Array();
+
+function playVideo(id)
+{
+    var $parents = jQuery('#' + id).parents('li');
+    jQuery('span', $parents).hide();
+    jQuery('.infos', $parents).hide();
+    jQuery('span', $parents).unbind('click');
+}
+
+function pauseVideo(id)
+{
+    var $parents = jQuery('#' + id).parents('li');
+    jQuery('span', $parents).show();
+    jQuery('.infos', $parents).show();
+    jQuery('span.video-libelle', $parents).unbind('click');
+    jQuery('span.video-libelle', $parents).click(function(evt) {
+        evt.preventDefault();
+        getObjectById(id).playVideoExternal();
+        return false;
+    });
+}
+
+function stopVideo(id)
+{
+    var $parents = jQuery('#' + id).parents('li');
+    jQuery('span', $parents).show();
+    jQuery('.infos', $parents).show();
+    jQuery('span.video-libelle', $parents).unbind('click');
+    jQuery('span.video-libelle', $parents).click(function(evt) {
+        evt.preventDefault();
+        getObjectById(id).playVideoExternal();
+        return false;
+    });
+}
+
+ function getObjectById(gameName)
+ {
+     if (window.document[gameName])
+     {
+         return window.document[gameName];
+     }
+     if (navigator.appName.indexOf('Microsoft Internet') == -1)
+     {
+         if (document.embeds && document.embeds[gameName])
+         {
+             return document.embeds[gameName];
+         }
+         else
+         {
+             return document.getElementById(gameName);
+         }
+     }
+ }
+ jQuery(document).ready(function () {
+
+     //Gérer l'affichage de la vidéo
+     if(jQuery('.infos-videos').length > 0)
+     {
+         jQuery('.infos-videos').on('click', function(){
+             jQuery(this).hide();
+             jQuery('#div-infos-'+jQuery(this).data('video')).hide();
+             jQuery('#video-youtube-'+jQuery(this).data('video')).show();
+             var video_id = '#video-youtube-' + jQuery(this).data('video');
+             jQuery(video_id)[0].src += "&autoplay=1";
+         });
+
+     }
+
+     if (jQuery('#slider-editorial').length > 0) {
+         jQuery('#slider-editorial').bxSlider({
+             mode: 'fade',
+             pager: true,
+             speed: 1000,
+             pagerSelector: '.teqbx-pager',
+             onBeforeSlide: function (currentSlideNumber, totalSlideQty, currentSlideHtmlObject) {
+                 // on met tout sur pause (car bx slider interdit de savoir quel slide on vient de quitter)
+                 var $video_objects = jQuery('a.video-slide object');
+                 $video_objects.each(function (idx) {
+                     if (typeof(getObjectById(jQuery(this).attr('id')).stopPlayer) != 'undefined') {
+                         getObjectById(jQuery(this).attr('id')).stopPlayer();
+                     }
+                 });
+                 currentSlideHtmlObject.find('a.video-slide object').show();
+
+
+                 //On stoppe toutes les vidéos lors d'un slide
+                 for(var i = 0; i < tab_players_youtube.length; i++)
+                 {
+                     tab_players_youtube[i].stopVideo();
+                 }
+
+                 //On cache toutes les iframe et on remet l'image et les indications sur le devant
+                 jQuery('.media-video iframe').hide();
+                 jQuery('.infos-videos').show();
+                 jQuery('.infos').show();
+             }
+         });
+
+         jQuery('#slider-editorial .truncate').jTruncate({
+             length: 150,
+             ellipsisText: ' ...'
+         });
+     }
+ });

@@ -1,0 +1,57 @@
+if (typeof TEQ == 'undefined' || !TEQ)
+    var TEQ = {};
+
+if (typeof TEQ.TwitterFrontend == 'undefined' || !TEQ.TwitterFrontend)
+    TEQ.TwitterFrontend = {};
+
+
+TEQ.TwitterFrontend = function() {
+    this.init();
+}
+
+TEQ.TwitterFrontend.prototype =
+{
+    init: function() {
+        this.initTweets();
+    },
+    initTweets: function() {
+        var $zonetwitter = jQuery('.slider-hp-twitter-container');
+        if($zonetwitter.length == 0) {
+            return;
+        }
+        jQuery.ajax({
+            type: 'post',
+            url: ajaxurl ,
+            data: 'action=teq_twitter_front&max_tweet=' + jQuery('#max_tweet').val(),
+            success: function(response) {
+                $zonetwitter.html(response);
+
+                jQuery('#slider-hp-twitter .slider-hp-twitter-container').bxSlider({
+                     mode: 'fade',
+                     prevText:'',
+                     prevSelector:'#prevTweet',
+                     nextText:'',
+                     nextSelector:'#nextTweet',
+                     infiniteLoop:false,
+                     onAfterSlide : function(currentSlideNumber, totalSlideQty){
+                        if(currentSlideNumber == 0){
+                            jQuery('#prevTweet').addClass('btn-inactif');
+                        }
+                        else{
+                            jQuery('#prevTweet').removeClass('btn-inactif');
+                        }
+                        if( currentSlideNumber == totalSlideQty-1 || totalSlideQty == 1 ){
+                            jQuery('#nextTweet').addClass('btn-inactif');
+                        }
+                        else{
+                            jQuery('#nextTweet').removeClass('btn-inactif');
+                        }
+                    }
+                });
+            }
+        })
+    }
+}
+jQuery(document).ready(function() {
+    new TEQ.TwitterFrontend();
+});

@@ -1,0 +1,68 @@
+/**
+ * Rowcolizr [2011 tequilarapido.]
+ * 
+ * Usage :
+ * $('.row').teqrowcolizr();
+ *
+ * To prevent problems with fancy fonts or images use it inside :
+ * $(window).load(function () {});
+ *
+ * TODO : add callbacks before and after the operations
+ * 
+ * Modified from Equal Heights Plugin [Copyright (c) 2008 Rob Glazebrook (cssnewbie.com)]
+ * 
+ */
+
+(function($) {
+    // definition du plugin jQuery 
+    $.fn.teqrowcolizr = function(options) {
+            
+        // valeur par default
+        var defaults = {
+            classMinHeight          : 0,
+            classMaxHeight          : '',
+            classChildSelector      : '',
+            classRowSelector        : 'rowcolizr-row',
+            classColSelector        : 'rowcolizr-col'
+        }
+            
+        // Fusionner les parametres par dÃ©faut et ceux de l'utilisateur
+        options = $.extend(defaults, options);
+        
+        // Traverser tous les nÅ“uds.
+        this.each(function() {
+            
+            var base = $(this);
+            
+            base.addClass(options.classRowSelector);
+            // if no child selector is set then this container's children are picked
+            var thisTarget;
+            if (options.classChildSelector) {
+                thisTarget = base.find(options.classChildSelector);
+            } else {
+                thisTarget = base.children();
+            }   
+            
+            // if no min height is set then min height for our cols becomes 0
+            var tallest = (options.classMinHeight) ? options.classMinHeight : 0;
+            // determines the tallest column
+            thisTarget.each(function() {
+                if($(this).outerHeight() > tallest) {
+                    tallest = $(this).outerHeight();
+                }
+            });
+            
+            // if a max height is set then it will be used as the tallest value
+            if((options.classMaxHeight) && tallest > options.classMaxHeight) tallest = options.classMaxHeight;
+            // height is written in each col
+            return thisTarget.each(function() {
+                var $this = $(this);
+                var surplus = $this.outerHeight() - $this.height();
+                $this.height(tallest-surplus).addClass(options.classColSelector);
+            });
+        });                
+
+        // Permettre le chaÃ®nage par jQuery
+        return this;
+    };
+})(jQuery);

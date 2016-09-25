@@ -1,0 +1,84 @@
+if (typeof TEQ == 'undefined' || !TEQ)
+    var TEQ = {};
+
+if (typeof TEQ.AbonnementFrontend == 'undefined' || !TEQ.AbonnementFrontend)
+    TEQ.AbonnementFrontend = {};
+
+jQuery(document).ready(function()
+{
+    if(jQuery('#module-abonnement').length > 0)
+    {
+        new TEQ.AbonnementFrontend.Abonnement();
+    }
+});
+
+TEQ.AbonnementFrontend.Abonnement = function()
+{
+    this.init();
+}
+
+TEQ.AbonnementFrontend.Abonnement.prototype =
+{
+    init: function()
+    {
+        jQuery('.teqAbonnement-subscribe-preview').colorbox();
+        jQuery('.teqAbonnement-subscribe-return').change(this.toggleNewSubscription);
+        jQuery('#teqAbonnement-subscribe-form').validate(
+        {
+            rules:
+            {
+                subscription_title: {required: '#subscription_title:visible'},
+                subscription_first_name: {required: '#subscription_first_name:visible'},
+                subscription_last_name: {required: '#subscription_last_name:visible'},
+                subscription_email:
+                {
+                    required: true,
+                    email: true
+                },
+                subscription_company: {required: '#subscription_company:visible'},
+                subscription_country: {required: '#subscription_country:visible'}
+            },
+            messages:
+            {
+                subscription_title: teqAbonnementFrontend.title,
+                subscription_first_name: teqAbonnementFrontend.first_name,
+                subscription_last_name: teqAbonnementFrontend.last_name,
+                subscription_email: teqAbonnementFrontend.email,
+                subscription_company: teqAbonnementFrontend.company,
+                subscription_country: teqAbonnementFrontend.country
+            },
+            submitHandler: this.submitSubscribeForm
+        });
+    },
+    toggleNewSubscription: function(evt)
+    {
+        if (jQuery(this).is(':checked'))
+            jQuery('.teqAbonnement-new').hide();
+        else
+            jQuery('.teqAbonnement-new').show();
+    },
+    submitSubscribeForm: function(form)
+    {
+        if (jQuery(form).hasClass('ajax'))
+            return;
+        var form_data = jQuery(form).serialize();
+        jQuery(form).addClass('ajax');
+        jQuery('input[type="submit"]' , form).hide();
+        jQuery('.ajax-loading' , form).show();
+        jQuery.ajax(
+        {
+            type: 'post',
+            url: ajaxurl ,
+            data: 'action=teq_abonnement&do=subscribe&' + form_data,
+            success: function(answer)
+            {
+                jQuery('#teqAbonnement-subscribe-message strong').html(answer);
+                jQuery('#teqAbonnement-subscribe-form input[type="submit"]').show();
+                jQuery('#teqAbonnement-subscribe-form .ajax-loading').hide();
+                jQuery('#teqAbonnement-subscribe-form').removeClass('ajax');
+                jQuery('#teqAbonnement-subscribe-form input[type="text"]').val('');
+            }
+        });
+    }
+}
+

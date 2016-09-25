@@ -1,0 +1,205 @@
+if (typeof TEQ == 'undefined' || !TEQ)
+    var TEQ = {};
+
+if (typeof TEQ.Agenda == 'undefined' || !TEQ.Agenda)
+    TEQ.Agenda = {};
+
+jQuery(document).ready(function()
+{
+    if(jQuery("#module-agenda").length > 0)
+    {
+        new TEQ.Agenda.Frontend();
+    }
+});
+
+TEQ.Agenda.Frontend = function()
+{
+    this.init();
+};
+
+TEQ.Agenda.Frontend.prototype =
+{
+    /**
+     * Inits UI
+     */
+    init: function()
+    {
+        // Popin
+        var $alerte = jQuery('#overlay-alerte');
+        jQuery('.agenda-alert a').colorbox(
+        {
+            close: 'close', 
+            inline: true, 
+            href: $alerte, 
+            width: '360px', 
+            height: '280px'
+        });
+        jQuery('.teq-agenda-subscribe').click(this.onClickSubscribe);
+        
+        // Forgotten password
+        jQuery("#overlay-alerte .forgot-password").click(function()
+        {
+            jQuery('#alertAgenda').toggle();
+            jQuery('#forgotPassword').toggle();
+        });
+        
+        // Form validation
+        jQuery('#alertAgenda').validate(
+        {
+            errorLabelContainer: "#box-message-error",
+            errorClass: "error",
+            rules:
+            {
+                agenda_email:
+                {
+                    required: true,
+                    email: true
+                },
+                agenda_password: 'required',
+                agenda_when: 'required'
+            },
+            messages:
+            {
+                agenda_email: '<p>' + teqAgendaFrontend.email + '</p>',
+                agenda_password: '<p>' + teqAgendaFrontend.password + '</p>',
+                agenda_when: '<p>' + teqAgendaFrontend.when + '</p>'
+            },
+            submitHandler: this.submitForm,
+            highlight: this.onHighlight,
+            unhighlight: this.onUnhighlight
+        });
+        
+        // Form validation (forgotten password)
+        jQuery('#forgotPassword').validate(
+        {
+            errorLabelContainer: "#box-message-error-password",
+            errorClass: "error",
+            rules:
+            {
+                agenda_email:
+                {
+                    required: true,
+                    email: true
+                },
+                agenda_password: 'required',
+                agenda_password_repeat:
+                {
+                    required: true,
+                    equalTo: '#agenda_new_password'
+                }
+            },
+            messages:
+            {
+                agenda_email: '<p>' + teqAgendaFrontend.email + '</p>',
+                agenda_password: '<p>' + teqAgendaFrontend.password + '</p>',
+                agenda_password_repeat: '<p>' + teqAgendaFrontend.password_repeat + '</p>'
+            },
+            submitHandler: this.submitPasswordForm,
+            highlight: this.onHighlight,
+            unhighlight: this.onUnhighlight
+        });
+        
+    },
+    
+    /**
+     * Highlights a form element
+     */
+    onHighlight: function(element , errorClass)
+    {
+        if (jQuery(element).attr('name') == 'alerte')
+            jQuery(element).parent().addClass('error');
+        else
+            jQuery(element).addClass(errorClass).removeClass("valid");
+    },
+    
+    /**
+     * Unhighlights a form element
+     */
+    onUnhighlight: function(element, errorClass, validClass)
+    {
+        if (jQuery(element).attr('name') == 'alerte')
+           jQuery(element).parent().removeClass('error');               
+        else
+           jQuery(element).removeClass(errorClass).addClass(validClass);
+    },
+    
+    /**
+     * Inits the popin
+     */
+    onClickSubscribe: function(evt)
+    {
+        evt.preventDefault();
+        var popin = jQuery('.teq-agenda-subscribe-popin');
+        jQuery('.teq-agenda-event-id' , popin).val(jQuery(this).data('event-id'));
+        jQuery('#alertAgenda').show();
+        jQuery('#forgotPassword').hide();
+        jQuery('input[type="submit"]' , popin).show();
+        jQuery('.ajax-loading' , popin).hide();
+        jQuery('form' , popin).removeClass('ajax');
+        jQuery('.validation-message' , popin).hide();
+        jQuery('input[type="text"]' , popin).val('');
+    },
+    
+    /**
+     * Submits the subscription form and handles the answer
+     */
+    submitForm: function(form)
+    {
+        if (jQuery(form).hasClass('ajax'))
+            return;
+        var form_data = jQuery(form).serialize();
+        jQuery(form).addClass('ajax');
+        jQuery('input[type="submit"]' , form).hide();
+        jQuery('.ajax-loading' , form).show();
+        jQuery.ajax(
+        {
+            type: 'post',
+            url: ajaxurl ,
+            dataType: 'json',
+            data: 'action=teq_agenda&' + form_data,
+            success: function(answer)
+            {
+                if (answer.type != 'error')
+                {
+                    jQuery('#alertAgenda').hide();
+                    jQuery('.teq-agenda-subscribe-popin .validation-message').html('<p>' + answer.message + '</p>').show();
+                }
+                else
+                {
+                    jQuery('input[type="submit"]' , popin).show();
+                    jQuery('.ajax-loading' , popin).hide();
+                    jQuery('form' , popin).removeClass('ajax');
+                    var container = jQuery('#box-message-error');
+                    if (container.length > 0)
+                        container.html(answer.message).show();
+                    var popin = jQuery('.teq-agenda-subscribe-popin');
+                }
+            }
+        });
+    },
+    
+    /**
+     * Submits the "New password" form
+     */
+    submitPasswordForm: function(form)
+    {
+        if (jQuery(form).hasClass('ajax'))
+            return;
+        var form_data = jQuery(form).serialize();
+        jQuery(form).addClass('ajax');
+        jQuery('input[type="submit"]' , form).hide();
+        jQuery('.ajax-loading' , form).show();
+        jQuery.ajax(
+        {
+            type: 'post',
+            url: ajaxurl ,
+            dataType: 'json',
+            data: 'action=teq_agenda_password&' + form_data,
+            success: function(answer)
+            {
+                jQuery('#forgotPassword').hide();
+                jQuery('.teq-agenda-subscribe-popin .validation-message').html('<p>' + answer.message + '</p>').show();
+            }
+        });
+    }
+}

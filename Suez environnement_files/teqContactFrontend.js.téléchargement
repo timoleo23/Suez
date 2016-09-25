@@ -1,0 +1,99 @@
+if (typeof TEQ == 'undefined' || !TEQ)
+    var TEQ = {};
+
+if (typeof TEQ.ContactFrontend == 'undefined' || !TEQ.ContactFrontend)
+    TEQ.ContactFrontend = {};
+
+jQuery(document).ready(function()
+{
+    if(jQuery('#teqContact-form').length > 0)
+    {
+        new TEQ.ContactFrontend();
+    }
+});
+
+TEQ.ContactFrontend = function()
+{
+    this.init();
+    this.reloadCaptcha();
+};
+
+TEQ.ContactFrontend.prototype =
+{
+    init: function()
+    {
+        jQuery('#teqContact-form').validate(
+        {
+            rules:
+            {
+                contact_first_name: 'required',
+                contact_last_name: 'required',
+                contact_email:
+                {
+                    required: true,
+                    email: true
+                },
+                contact_company: 'required',
+                contact_country: 'required',
+                contact_message: 'required',
+                captcha:
+                {
+                    required: true,
+                    remote:
+                    {
+                        url: ajaxurl,
+                        type: 'post',
+                        data: {'action': 'teqcontactcaptcha', 'captcha_control': function() { return jQuery('#captcha_control').val(); }}
+                    }
+                }    
+            },
+            messages:
+            {
+                contact_first_name: teqContactFrontend.first_name,
+                contact_last_name: teqContactFrontend.last_name,
+                contact_email: teqContactFrontend.email,
+                contact_company: teqContactFrontend.company,
+                contact_country: teqContactFrontend.country,
+                contact_message: teqContactFrontend.message
+            },
+            submitHandler: this.submitContactForm
+        });
+    },
+    reloadCaptcha: function()
+    {
+        jQuery('#reload_captcha').click(function()
+        {
+            var params = {action: 'reloadcaptcha'};
+            jQuery.post(ajaxurl, params, function(data)
+            {
+                jQuery('.item-captcha img').attr('src', data.src);
+                jQuery('.item-captcha #captcha_control').val(data.encoded);
+            }, 'json');
+            return false;
+        });
+    },
+    submitContactForm: function(form)
+    {
+        var form_data = jQuery(form).serialize();
+        var form_button = jQuery('.btn-envoyer' , form).hide();
+        var loader = jQuery('.ajax-loading' , form).show();
+        jQuery.ajax(
+        {
+            type: 'post',
+            url: ajaxurl ,
+            data: 'action=teq_contact&' + form_data,
+            success: function(answer)
+            {
+                loader.hide();
+                form_button.show();
+                jQuery('#teqContact-message').html(answer);
+            },
+            error: function(answer)
+            {
+                loader.hide();
+                form_button.show();
+                jQuery('#teqContact-message').html(answer);
+            }
+        });
+    }
+}

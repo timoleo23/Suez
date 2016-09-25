@@ -1,0 +1,64 @@
+if (typeof TEQ == 'undefined' || !TEQ)
+    var TEQ = {};
+
+if (typeof TEQ.AbonnementFrontend == 'undefined' || !TEQ.AbonnementFrontend)
+    TEQ.AbonnementFrontend = {};
+
+jQuery(document).ready(function()
+{
+    if (jQuery('#module-abonnement').length > 0)
+    {
+        new TEQ.AbonnementFrontend.Desabonnement();
+    }
+});
+
+TEQ.AbonnementFrontend.Desabonnement = function()
+{
+    this.init();
+}
+
+TEQ.AbonnementFrontend.Desabonnement.prototype =
+{
+    init: function()
+    {
+        jQuery('#teqAbonnement-unsubscribe-form').validate(
+        {
+            rules:
+            {
+                subscription_email:
+                {
+                    required: true,
+                    email: true
+                }
+            },
+            messages:
+            {
+                subscription_email: teqDesabonnementFrontend.email
+            },
+            submitHandler: this.submitUnsubscribeForm
+        });
+    },
+    submitUnsubscribeForm: function(form)
+    {
+        if (jQuery(form).hasClass('ajax'))
+            return;
+        var form_data = jQuery(form).serialize();
+        jQuery(form).addClass('ajax');
+        jQuery('input[type="submit"]' , form).hide();
+        jQuery('.ajax-loading' , form).show();
+        jQuery.ajax(
+        {
+            type: 'post',
+            url: ajaxurl ,
+            data: 'action=teq_desabonnement&do=unsubscribe&' + form_data,
+            success: function(answer)
+            {
+                jQuery('#teqAbonnement-unsubscribe-message strong').html(answer);
+                jQuery('#teqAbonnement-unsubscribe-form input[type="submit"]').show();
+                jQuery('#teqAbonnement-unsubscribe-form .ajax-loading').hide();
+                jQuery('#teqAbonnement-unsubscribe-form').removeClass('ajax');
+                jQuery('#teqAbonnement-unsubscribe-form input[type="text"]').val('');
+            }
+        });
+    }
+}

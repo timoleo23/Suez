@@ -1,0 +1,85 @@
+(function($)
+{
+    // Namespaces
+    if (typeof TEQ == "undefined" || !TEQ)
+        var TEQ = {};
+    if (typeof TEQ.cbAdmin == "undefined" || !TEQ.cbAdmin)
+        TEQ.cbAdmin = {};
+
+    // Frontend class
+    TEQ.likeFrontend = function()
+    {
+        this.init();
+    }
+
+    TEQ.likeFrontend.prototype =
+    {
+        /**
+         * Inits UI
+         */
+        init: function()
+        {
+            $(document).delegate('a[rel="teqlike"]' , 'click' , $.proxy(this.likeRequest , this));
+            this.buildLikes();
+        },
+        
+        /**
+         * Loads the initial like states
+         */
+        buildLikes: function()
+        {
+            var self = this;
+            var likes = $('a[rel="teqlike"]');
+            if (likes.length > 0)
+            {
+                likes.each(function()
+                {
+                    self.sendAjax(this , false);
+                });
+            }
+        },
+        
+        /**
+         * Sends an ajax request (like/display only)
+         * @param Object context the current like button
+         * @param Boolean dolike add/remove a like, or display only (set to false)
+         */
+        sendAjax: function(context , dolike)
+        {
+            dolike = dolike ? '1' : '0';
+            context = $(context);
+            if (context.hasClass('loading'))
+                return;
+            context.addClass('loading');
+            var post_id = context.data('postid');
+            var tpl = context.data('tpl');
+            jQuery.ajax(
+            {
+                type: 'post',
+                url: ajaxurl ,
+                data: 'action=teq_like&post_id=' + post_id + '&tpl=' + tpl + '&dolike=' + dolike,
+                success: function(answer)
+                {
+                    context.replaceWith(answer);
+                } ,
+                error: function(answer) { }
+            });
+            
+        },
+        
+        /**
+         * Sends a like request
+         */
+        likeRequest: function(evt)
+        {
+            evt.preventDefault();
+            this.sendAjax(evt.currentTarget , true);
+        }
+    }
+
+    $(document).ready(function()
+    {
+        new TEQ.likeFrontend();
+    });
+
+})(jQuery);

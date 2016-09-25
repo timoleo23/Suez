@@ -1,0 +1,6 @@
+jQuery(document).ready(function() {
+    if(jQuery('a.youtube-video').length > 0)
+    {
+        jQuery('a.youtube-video').colorbox({iframe:true, innerWidth:425, innerHeight:344});
+    }
+});
